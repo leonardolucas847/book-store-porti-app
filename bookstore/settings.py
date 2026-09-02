@@ -25,7 +25,8 @@ SECRET_KEY = "django-insecure-m$ij5&!)fdqhw7xm(!od7kw3&dpgweau#8ar6@eh86ksqyl=dk
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"
+]
 
 
 # Application definition
@@ -127,6 +128,11 @@ STATIC_URL = "static/"
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
+    ],
 }
 
 # Email
