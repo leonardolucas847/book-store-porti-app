@@ -14,3 +14,21 @@ class OrderViewSet(ModelViewSet):
 
     serializer_class = OrderSerializer
     queryset = Order.objects.all().order_by("id")
+
+
+from django.contrib.auth.models import User
+from rest_framework.test import APITestCase
+
+
+class TestOrderViewSet(APITestCase):
+    def setUp(self):
+        # 1. Cria o usuário de teste
+        self.user = User.objects.create_user(
+            username="testuser",
+            password="password123"
+        )
+
+        # 2. Força a autenticação do cliente para passar no IsAuthenticated
+        self.client.force_authenticate(user=self.user)
+
+        # ... Mantenha o restante do seu setUp (criação de produtos, categorias, etc.)
