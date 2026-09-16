@@ -50,6 +50,7 @@ COPY pyproject.toml poetry.lock* ./
 
 # install runtime dependencies
 RUN poetry lock && poetry install --no-root --only main
+RUN poetry run python manage.py collectstatic --noinput
 
 WORKDIR /app
 
@@ -59,4 +60,4 @@ EXPOSE 8000
 
 # Subentende-se que o gunicorn está instalado no seu pyproject.toml
 # Substitua 'NOME_DO_SEU_PROJETO' pela pasta onde está o arquivo wsgi.py
-CMD ["gunicorn", "bookstore.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["sh", "-c", "poetry run python manage.py migrate && poetry run gunicorn bookstore.wsgi:application --bind 0.0.0.0:8000"]
