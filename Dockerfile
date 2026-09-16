@@ -48,10 +48,11 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 WORKDIR $PYSETUP_PATH
 COPY pyproject.toml poetry.lock* ./
 
+WORKDIR /app
+
 # install runtime dependencies
 RUN poetry lock && poetry install --no-root --only main
 
-WORKDIR /app
 
 COPY . /app/
 
