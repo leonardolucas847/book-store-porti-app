@@ -36,21 +36,20 @@ RUN apt-get update \
         # deps for installing poetry
         curl \
         # deps for building python deps
-        build-essential
+        build-essential \
+        libpq-dev \
+        gcc \
+    && rm -rf /var/lib/apt/lists/*
 
 # install poetry - respects $POETRY_VERSION & $POETRY_HOME
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
-RUN apt-get update \
-    && apt-get -y install libpq-dev gcc \
-    && pip install psycopg2
-
 # copy project requirement files here to ensure they will be cached.
 WORKDIR $PYSETUP_PATH
-COPY pyproject.toml ./
+COPY pyproject.toml poetry.lock* ./
 
-# quicker install as runtime deps are already installed
-RUN poetry lock && poetry install --no-root
+# install runtime dependencies
+RUN poetry install --no-root --only main
 
 WORKDIR /app
 
@@ -58,4 +57,6 @@ COPY . /app/
 
 EXPOSE 8000
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Subentende-se que o gunicorn está instalado no seu pyproject.toml
+# Substitua 'NOME_DO_SEU_PROJETO' pela pasta onde está o arquivo wsgi.py
+CMD ["gunicorn", "bookstore.wsgi:application", "--bind", "0.0.0.0:8000"]
