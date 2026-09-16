@@ -49,7 +49,7 @@ WORKDIR $PYSETUP_PATH
 COPY pyproject.toml poetry.lock* ./
 
 # install runtime dependencies
-RUN poetry install --no-root --only main
+RUN poetry lock && poetry install --no-root --only main
 
 WORKDIR /app
 
