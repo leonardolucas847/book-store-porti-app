@@ -50,11 +50,12 @@ COPY pyproject.toml poetry.lock* ./
 
 # install runtime dependencies
 RUN poetry lock && poetry install --no-root --only main
-RUN poetry run python manage.py collectstatic --noinput
 
 WORKDIR /app
 
 COPY . /app/
+
+RUN poetry run python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
