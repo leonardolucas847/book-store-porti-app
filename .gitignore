@@ -1,0 +1,42 @@
+# Byte-compiled / Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments (Pastas de ambiente virtual local)
+.venv/
+venv/
+ENV/
+env/
+
+# Environment variables (SEGREDOS E SENHAS)
+.env
+.env.*
+env.dev
+!.env.example
+
+# Database (Banco de dados local do SQLite)
+*.sqlite3
+*.db
+
+# Django static & media uploads locais
+staticfiles/
+media/
+*.log
+
+# IDEs & Editors (VS Code / PyCharm)
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
