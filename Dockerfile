@@ -1,61 +1,39 @@
-# `python-base` sets up all our shared environment variables
-FROM python:3.13.1-slim AS python-base
+FROM python:3.13.1-slim
 
-    # python
+# Impede geração de bytecode e garante logs em tempo real
 ENV PYTHONUNBUFFERED=1 \
-    # prevents python creating .pyc files
     PYTHONDONTWRITEBYTECODE=1 \
-    \
-    # pip
-    PIP_NO_CACHE_DIR=off \
-    PIP_DISABLE_PIP_VERSION_CHECK=on \
-    PIP_DEFAULT_TIMEOUT=100 \
-    \
-    # poetry
-    # https://python-poetry.org/docs/configuration/#using-environment-variables
-    POETRY_VERSION=2.1.4 \
-    # make poetry install to this location
     POETRY_HOME="/opt/poetry" \
-    # make poetry create the virtual environment in the project's root
-    # it gets named `.venv`
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
-    # do not ask any interactive question
-    POETRY_NO_INTERACTION=1 \
-    \
-    # paths
-    # this is where our requirements + virtual environment will live
-    PYSETUP_PATH="/opt/pysetup" \
-    VENV_PATH="/opt/pysetup/.venv"
+    POETRY_VIRTUALENVS_CREATE=false \
+    PATH="/opt/poetry/bin:$PATH"
 
+# Instala dependências do sistema operacional
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    curl \
+    build-essential \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
-# prepend poetry and venv to path
-ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
-
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
-        # deps for installing poetry
-        curl \
-        # deps for building python deps
-        build-essential
-
-# install poetry - respects $POETRY_VERSION & $POETRY_HOME
+# Instala o Poetry
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
-RUN apt-get update \
-    && apt-get -y install libpq-dev gcc \
-    && pip install psycopg2
-
-# copy project requirement files here to ensure they will be cached.
-WORKDIR $PYSETUP_PATH
-COPY pyproject.toml ./
-
-# quicker install as runtime deps are already installed
-RUN poetry lock && poetry install --no-root
-
+# Define o diretório de trabalho único
 WORKDIR /app
 
+# Copia arquivos de dependência (aproveita o cache do Docker)
+COPY pyproject.toml poetry.lock* /app/
+
+# Instala as dependências diretamente no ambiente Python do container
+RUN poetry install --no-root --only main
+
+# Copia o código-fonte da aplicação
 COPY . /app/
+
+# Coleta os arquivos estáticos do Admin e REST Framework
+RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Aplica migrações no PostgreSQL e inicia o Gunicorn
+CMD ["sh", "-c", "python manage.py migrate && gunicorn bookstore.wsgi:application --bind 0.0.0.0:8000"]

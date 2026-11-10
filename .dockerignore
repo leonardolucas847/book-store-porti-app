@@ -1,0 +1,35 @@
+# Git
+.git
+.gitignore
+
+# Dockerfiles e configs de dev
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Ambientes virtuais locais (Evita sobrescrever o Python do container)
+.venv/
+venv/
+ENV/
+env/
+
+# Cache e compilação do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Segredos e variáveis locais
+.env
+.env.*
+env.dev
+
+# IDEs, Documentos e PDFs
+.vscode/
+.idea/
+README.md
+*.pdf
+
+# Banco de dados e mídias locais
+*.sqlite3
+*.db
+media/
